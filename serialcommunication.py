@@ -7,6 +7,7 @@ __author__ = 'OSAMA'
 import serial
 import time
 import threading
+import socket
 
 def main():
     # All the main code resides here.
@@ -26,18 +27,23 @@ def main():
 
     s = serial.Serial(comport,baudrate)
     readthread = threading.Thread(target=read)
+    sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    sock.bind(("localhost",5000))
+
 
     while not s.isOpen():
         s.open()
     else:
         print "Serial Port is open"
-        time.sleep(0.1)
+        time.sleep(2)
         message = "*255,0,-255,0,1$"
         readthread.start()
         try:
             while True:
+                r = sock.recvfrom(1024)
                 s.write(message)
                 # print "sent:", message
+
         except KeyboardInterrupt:
             s.close()
 

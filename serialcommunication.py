@@ -21,7 +21,7 @@ def main():
 
 
     comport = "COM5"
-    baudrate = 115200
+    baudrate = 9600
     # timeout = 0.1
     # writetimeout = 0.1
 

@@ -3,24 +3,25 @@ import threading
 import time
 def main():
     # print ("main")
-    rpi = Raspberry(5000)
+    rpi = Raspberry(5000,"127.0.0.2")
     def reading():
         while True:
-            if ard.s.inWaiting():
+            if ard.s.inWaiting() > 0:
                 r = ard.s.readline()
                 r = r.strip('\r\n')
                 print r
                 time.sleep(100)
-    re = threading.Thread(target= reading)
+    re = threading.Thread(target=reading)
     ardmsg = []
     data = []
-    re.start()
+    # re.start()
     while True:
     #Receive joyStick movements from pilot
         try:
             data = rpi.receive()
         except Exception as e:
             print ("Nothing to receive")
+        # print data
     #Save the msg
         if data[0] == "PILOT":
             ardmsg.append(data[1])
@@ -66,20 +67,25 @@ def main2():
         ardmsg = []        
 
 if __name__ == "__main__":
+    ard = Arduino("COM5")
     while True:
-        ard = Arduino("COM")
+        time.sleep(2)
         chk = "-1"
         if not ard.s.isOpen():
             ard.s.open()
-        chk = ard.s.write("2")
-        chk = ard.s.readline()
-        chk = chk.strip('\n\r')
-        rtrn = 0
-        if chk == "0":
-            rtrn = main()
-        elif chk == "1":
-            rtrn = main2()
-        if(rtrn == -1):
-            continue
+        else:
+            chk = ard.s.write("2")
+        print "Written"
+        if ard.s.inWaiting() > 0:
+            chk = ard.s.readline()
+            print "Read"
+            chk = chk.strip('\n\r')
+            rtrn = 0
+            if chk == "0":
+                rtrn = main()
+            elif chk == "1":
+                rtrn = main2()
+            if(rtrn == -1):
+                continue
         
             

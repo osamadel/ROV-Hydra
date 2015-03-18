@@ -1,5 +1,5 @@
 # In this commit
-# We set the Arduino to send 0 in order to run main() (see line 80).
+# We set the Arduino to send 0 in order to run main() (see line 86).
 # We set the arduino code to send the message it receives.
 # The goal is to send a message and gurantee that it reaches
 # the arduino without distortion.
@@ -85,7 +85,7 @@ def main2():
 
 if __name__ == "__main__":
     ard = Arduino("COM5")   # Must be put before while True not to open the same port twice.
-    ard.s.baudrate = 9600
+    # ard.s.baudrate = 112
     global x
     x = 0
     while True:

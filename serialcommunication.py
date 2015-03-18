@@ -21,14 +21,14 @@ def main():
 
 
     comport = "COM5"
-    baudrate = 9600
+    baudrate = 115200
     # timeout = 0.1
     # writetimeout = 0.1
 
     s = serial.Serial(comport,baudrate)
     readthread = threading.Thread(target=read)
     sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-    sock.bind(("localhost",5000))
+    sock.bind(("127.0.0.2",5000))
 
 
     while not s.isOpen():

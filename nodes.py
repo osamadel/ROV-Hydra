@@ -71,12 +71,12 @@ class Arduino(Workstation):
 
 
     def send(self, values):
-        m = ",".join(map(str, values))
+        m = ",".join(values)
         message = "*" + m + "$"
         #        print "Print this if we are in send. Message =", message
         try:
             #self.s.write(chr(len(message)-2))	# Send length of message
-            self.s.write(message)  # *100,200,300$
+            return self.s.write(message)  # *100,200,300$
         #        	time.sleep(0.01)
         except:
             #		time.sleep(0.01)

@@ -1,18 +1,19 @@
 # Author        :   OSAMA ADEL SHOKRY
 # DATE          :   30/1/2015
 # DESCRIPTION   :
-#                   Module of classes used to represent all nodes in the network consisting the ROV
+# Module of classes used to represent all nodes in the network consisting the ROV
 #                   control system which are : PilotConsole, ROVSupervision, CoPilotConsole, RaspberryPi,
 #                   ArduinoRight, ArduinoLeft.
 import serial
 import socket
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import time
 
 # Super Class for all nodes in the network.
 class Workstation:
     def __init__(self, address=""):
         self.address = address
+
 
 # Subclass of Workstation.
 # Initiates an Arduino device.
@@ -23,20 +24,21 @@ class Workstation:
 # closeConnection closes the serial port. Must be called at the end of the main program.
 class Arduino(Workstation):
     def __init__(self, address=""):
-        Workstation.__init__(self,address)
+        Workstation.__init__(self, address)
         self.s = serial.Serial(address, baudrate=115200, writeTimeout=0.1)
         self.sensorsKeys = []
 
     # Decompose message received from arduino
-    def decompose(self,message):
+    def decompose(self, message):
         msg = message.lstrip("*/").rstrip("\n").split(",")
         return dict(zip(self.sensorsKeys, msg))
 
     # Set the sensors data sent from this instance (in order)
-    def setSensorNames(self,names):
+    def setSensorNames(self, names):
         if self.sensorsKeys == []:
             for i in names:
                 self.sensorsKeys.append(i)
+
     def flush(self):
         self.s.flushInput()
 
@@ -59,27 +61,30 @@ class Arduino(Workstation):
                 msg = -1'''
         if self.s.inWaiting() > 0:
             msg = self.s.readline()
-        else: msg = -1
-#                print "exception in reading from arduino"
+        else:
+            msg = -1
+        #                print "exception in reading from arduino"
         #print "Message Read:", msg
         #self.s.flushInput()
-       # return self.decompose(msg)  # Type: Dictionary
-            return msg
+        # return self.decompose(msg)  # Type: Dictionary
+        return msg
 
-    def send(self, values):
-        m = ",".join(map(str,values))
-        message = "*" + chr(len(m)) + m + "$"
-#        print "Print this if we are in send. Message =", message
-        try:
+
+def send(self, values):
+    m = ",".join(map(str, values))
+    message = "*" + chr(len(m)) + m + "$"
+    #        print "Print this if we are in send. Message =", message
+    try:
         #self.s.write(chr(len(message)-2))	# Send length of message
-            self.s.write(message)    # *100,200,300$
-#        	time.sleep(0.01)
-        except:
-#		time.sleep(0.01)
-            pass
+        self.s.write(message)  # *100,200,300$
+    #        	time.sleep(0.01)
+    except:
+        #		time.sleep(0.01)
+        pass
 
-    def closeConnection(self):
-        self.s.close()
+
+def closeConnection(self):
+    self.s.close()
 
 
 # Subclass of Workstation.
@@ -88,9 +93,9 @@ class Arduino(Workstation):
 # Cannot receive from it. SEE Raspberry Class to receive data.
 # Initiates a client process to send data (as UDP packages).
 class Console(Workstation):
-    def __init__(self,address="",port=""):
-        Workstation.__init__(self,address)  # IP address of the console.
-        self.port = port                    # Port number of the console.
+    def __init__(self, address="", port=""):
+        Workstation.__init__(self, address)  # IP address of the console.
+        self.port = port  # Port number of the console.
 
 
     def send(self, values):
@@ -117,22 +122,22 @@ class Raspberry(Workstation):
         Workstation.__init__(self, address)
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind((address,port))
+        self.server.bind((address, port))
 
 
     def receive(self):
         data, clientIP = self.server.recvfrom(1024)
         data = data.strip("/*").split(",")
-#        print "Message received by RPi:", data
+        #        print "Message received by RPi:", data
         return data
 
 
 # Main program for test ONLY.
 if __name__ == '__main__':
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(7, GPIO.OUT)
-    p = GPIO.PWM(7,50)
-    p.start(7.5)
+    # GPIO.setmode(GPIO.BOARD)
+    # GPIO.setup(7, GPIO.OUT)
+    # p = GPIO.PWM(7,50)
+    # p.start(7.5)
     console = Console("192.168.1.200", 5001)
     rpi = Raspberry(5000)
     print "Waiting for connection .."
@@ -140,8 +145,9 @@ if __name__ == '__main__':
         while True:
             data = rpi.receive()
             console.send(data)
-            p.ChangeDutyCycle(7.5)
+            # p.ChangeDutyCycle(7.5)
 
     except KeyboardInterrupt:
-        p.stop()
-        GPIO.cleanup()
+        # p.stop()
+        # GPIO.cleanup()
+        pass

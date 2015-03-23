@@ -1,3 +1,8 @@
+// Adding the prineln() to send the sensors readings
+// must be put in else{} statement after the if(ping=='2').
+// because otherwise, arduino will send the sensors readings
+// infinitely and will cause delays and problems to the
+// python code which is waiting for '0' as a response.
 String msg;
 void setup() {
   // put your setup code here, to run once:

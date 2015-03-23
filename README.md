@@ -8,3 +8,6 @@ python module that contains Arduino, Raspberry and Cosnole classes.
 
 ###serialcommunication.py
 just a try to test serial communication.
+
+### workspace
+Contains all Arduino files.

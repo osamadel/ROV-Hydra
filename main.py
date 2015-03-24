@@ -12,7 +12,7 @@ import time
 def main():
     # print ("main")
     x = 0
-    rpi = Raspberry(5000,"127.0.0.2")
+    rpi = Raspberry(5000,"192.168.1.6")
     def reading():
         while True:
             if ard.s.inWaiting() > 0:
@@ -57,17 +57,36 @@ def main():
 
 
 
+
 def main2():
-    print ("main2")
-    rpi = Raspberry(5001)
+    # print ("main")
+    x = 0
+    rpi = Raspberry(5001,"192.168.1.6")
+    def reading():
+        while True:
+            if ard.s.inWaiting() > 0:
+                # print "reading .. inWaiting"
+                r = ard.s.readline()
+                # print "After readline"
+                r = r.strip('\r\n')
+                print r, x  # x is the number of chars sent to Arduino.
+                            # put to check if the distorted messages are
+                            # sent distorted in the first place or not.
+                # ard.s.flushInput()
+                # time.sleep(0.1)
+
+    re = threading.Thread(target=reading)
     ardmsg = []
     data = []
+    # ard.flush()
+    re.start()
     while True:
     #Receive joyStick movements from pilot
         try:
             data = rpi.receive()
         except Exception as e:
             print ("Nothing to receive")
+        # print data
     #Save the msg
         if data[0] == "PILOT":
             ardmsg.append(data[1])
@@ -76,15 +95,16 @@ def main2():
             ardmsg.append(data[6])
             ardmsg.append(data[9])
         if ard.s.isOpen():
-            ard.send(ardmsg)
-            time.sleep(0.01)
-            ard.flush()
+            x = ard.send(ardmsg)    # Here is x, the number of characters sent.
+            # ard.s.flushOutput()     # flush output
         else :
             return -1
+
+
         ardmsg = []        
 
 if __name__ == "__main__":
-    ard = Arduino("COM5")   # Must be put before while True not to open the same port twice.
+    ard = Arduino("/dev/ttyACM0")   # Must be put before while True not to open the same port twice.
     # ard.s.baudrate = 112
     global x
     x = 0

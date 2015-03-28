@@ -12,7 +12,7 @@ import time
 def main():
     # print ("main")
     x = 0
-    rpi = Raspberry(5000,"127.0.0.2")
+    rpi = Raspberry(5000,"192.168.1.6")
     def reading():
         while True:
             if ard.s.inWaiting() > 0:
@@ -44,7 +44,9 @@ def main():
             ardmsg.append(data[2])
             ardmsg.append(data[4])
             ardmsg.append(data[3])
-            ardmsg.append(data[9])
+            ardmsg.append(data[11])
+            ardmsg.append(data[7])
+            ardmsg.append(data[8])
         if ard.s.isOpen():
             x = ard.send(ardmsg)    # Here is x, the number of characters sent.
             # ard.s.flushOutput()     # flush output
@@ -59,7 +61,7 @@ def main():
 
 def main2():
     print ("main2")
-    rpi = Raspberry(5001)
+    rpi = Raspberry(5001,"192.168.1.6")
     ardmsg = []
     data = []
     while True:
@@ -74,7 +76,9 @@ def main2():
             ardmsg.append(data[2])
             ardmsg.append(data[4])
             ardmsg.append(data[6])
-            ardmsg.append(data[9])
+            ardmsg.append(data[11]) 
+            ardmsg.append(data[8]) 
+            ardmsg.append(data[7])
         if ard.s.isOpen():
             ard.send(ardmsg)
             time.sleep(0.01)
@@ -84,24 +88,26 @@ def main2():
         ardmsg = []        
 
 if __name__ == "__main__":
-    ard = Arduino("COM5")   # Must be put before while True not to open the same port twice.
+    ard = Arduino("/dev/ttyACM0")   # Must be put before while True not to open the same port twice.
     # ard.s.baudrate = 112
     global x
     x = 0
     while True:
-        time.sleep(2)
+        time.sleep(2)	# This line solved a problem .. it is important.
         chk = "-1"
         if not ard.s.isOpen():
             ard.s.open()
         else:
-            chk = ard.s.write("2")
+#            chk = ard.s.write("255")
+            ard.s.write('2')
+            print chk
         print "Written"
         if ard.s.inWaiting() > 0:
             chk = ard.s.readline()
             print "Read"
             chk = chk.strip('\n\r')
             rtrn = 0
-            if chk == "0":
+            if chk == "2":
                 rtrn = main()
             elif chk == "1":
                 rtrn = main2()

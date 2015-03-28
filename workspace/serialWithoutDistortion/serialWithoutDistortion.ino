@@ -1,7 +1,7 @@
 String msg;
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200z);
+  Serial.begin(115200);
   Serial.setTimeout(100);
 }
 
@@ -12,7 +12,7 @@ void loop() {
     char ping = Serial.read();
     if (ping == '2')
     {
-      Serial.println('0');
+      Serial.println('2');
     }else if(ping == '*')
     {
       msg = Serial.readStringUntil('$');

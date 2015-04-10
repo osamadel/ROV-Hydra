@@ -44,10 +44,8 @@ def main():
             ardmsg.append(data[2])
             ardmsg.append(data[4])
             ardmsg.append(data[3])
-            ardmsg.append(data[11])
-            ardmsg.append(data[7])
-            ardmsg.append(data[8])
-        connected = os.system("ls /dev/ttyUSB1")
+            ardmsg.append(data[9])
+        # connected = os.system("ls /dev/ttyUSB1")
         if connected == 0:
             x = ard.send(ardmsg)    # Here is x, the number of characters sent.
             # ard.s.flushOutput()     # flush output

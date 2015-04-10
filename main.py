@@ -44,9 +44,7 @@ def main():
             ardmsg.append(data[2])
             ardmsg.append(data[4])
             ardmsg.append(data[3])
-            ardmsg.append(data[11])
-            ardmsg.append(data[7])
-            ardmsg.append(data[8])
+            ardmsg.append(data[9])
         if ard.s.isOpen():
             x = ard.send(ardmsg)    # Here is x, the number of characters sent.
             # ard.s.flushOutput()     # flush output
@@ -76,9 +74,7 @@ def main2():
             ardmsg.append(data[2])
             ardmsg.append(data[4])
             ardmsg.append(data[6])
-            ardmsg.append(data[11]) 
-            ardmsg.append(data[8]) 
-            ardmsg.append(data[7])
+            ardmsg.append(data[9])
         if ard.s.isOpen():
             ard.send(ardmsg)
             time.sleep(0.01)

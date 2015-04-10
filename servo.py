@@ -1,6 +1,5 @@
 from nodes import Raspberry, Arduino
 #import subprocess
-import spidev
 import time
 def main():
 #    e = subprocess.call("sudo pigpiod", shell=True)

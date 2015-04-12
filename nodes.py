@@ -22,69 +22,45 @@ class Workstation:
 # read returns the message sent from Arduino
 # send sends the message to Arduino with the approperiate delimeter.
 # closeConnection closes the serial port. Must be called at the end of the main program.
-class Arduino(Workstation):
+class Arduino(serial.Serial):
+
+
     def __init__(self, address=""):
-        Workstation.__init__(self, address)
-        self.s = serial.Serial(address, baudrate=115200, writeTimeout=0.1)
-        self.sensorsKeys = []
-
-    # Decompose message received from arduino
-    def decompose(self, message):
-        msg = message.lstrip("*/").rstrip("\n").split(",")
-        return dict(zip(self.sensorsKeys, msg))
-
-    # Set the sensors data sent from this instance (in order)
-    def setSensorNames(self, names):
-        if self.sensorsKeys == []:
-            for i in names:
-                self.sensorsKeys.append(i)
-
-    def flush(self):
-        self.s.flushInput()
-
-    def read(self):
-        '''msg = ""
-        #print "read"
-        if self.s.inWaiting() > 0:
-#            print "Data in input buffer exists"
-            try:
-                c = self.s.read(1)
-                if c == '*':
-            l = self.s.read(1)
-            msg = self.s.readline()
-            lineIndex = msg.index('\r\n')
-            if lineIndex > -1 and len(msg) == l + 2:
-                            msg = msg[:lineIndex]
-            else:
-                msg = -1
-            except:
-                msg = -1'''
-        if self.s.inWaiting() > 0:
-            msg = self.s.readline()
-        else:
-            msg = -1
-        #                print "exception in reading from arduino"
-        #print "Message Read:", msg
-        #self.s.flushInput()
-        # return self.decompose(msg)  # Type: Dictionary
-        return msg
+        serial.Serial.__init__(self, port=address, baudrate=115200, writeTimeout=0.1)
 
 
-    def send(self, values):
-        m = ",".join(values)
-        message = "*" + m + "$"
-        #        print "Print this if we are in send. Message =", message
+    def get(self):
+        r = self.readline()
+        r = r.rstrip('\n\r')
+        return r
+
+
+    # Used to send a list of values to serial port.
+    def putList(self, values):
+        m = ""
+        if type(values) == list:
+            if type(values[0]) == int:
+                values = map(str, values)
+            m = ",".join(values)
+        m = "*" + m + "$"
         try:
-            #self.s.write(chr(len(message)-2))	# Send length of message
-            return self.s.write(message)  # *100,200,300$
-        #        	time.sleep(0.01)
-        except:
-            #		time.sleep(0.01)
-            pass
+            return self.write(m)
+        except Exception as e:
+            # I am not sure what the error message should be.
+            print e.message
 
-
-def closeConnection(self):
-    self.s.close()
+    def initConn(self):
+        if not self.isOpen(): self.open()
+        else:
+            try:
+                self.write('2')
+            except serial.SerialException as e:
+                pass    # Continue
+            print "WROTE TO ARDUINO"
+            #time.sleep(0.01)
+            if self.inWaiting() > 0:
+                print "READ FROM ARDUINO"
+                return self.get()
 
 
 # Subclass of Workstation.

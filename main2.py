@@ -1,6 +1,7 @@
-# In this commit We set the Arduino to send 0 in order to run main() 
-# (see line 86). We set the arduino code to send the message it 
-# receives. The goal is to send a message and gurantee that it reaches 
+# In this commit
+# We set the Arduino to send 0 in order to run main() (see line 86).
+# We set the arduino code to send the message it receives.
+# The goal is to send a message and gurantee that it reaches
 # the arduino without distortion.
 # #################################################################################
 # IMPORTANT: chaos flushes causes the message to be distorted, which is logical !
@@ -8,120 +9,80 @@
 from nodes import Arduino, Raspberry
 import threading
 import time
-import os
-def main():
-    # print ("main")
-    x = 0
-    rpi = Raspberry(5000,"192.168.1.6")
-    def reading():
+
+
+def reading():
         while True:
-            if ard.s.inWaiting() > 0:
-                # print "reading .. inWaiting"
-                r = ard.s.readline()
-                # print "After readline"
-                r = r.strip('\r\n')
-                print r, x  # x is the number of chars sent to Arduino.
+            if ard.inWaiting() > 0:
+                r = ard.get()
+                print r     # x is the number of chars sent to Arduino.
                             # put to check if the distorted messages are
                             # sent distorted in the first place or not.
-                # ard.s.flushInput()
-                # time.sleep(0.1)
 
+def makemessage(data,seq,ardmsg):
+    if data[0] == "PILOT":
+            for i in seq:
+                ardmsg.append(data[i])
+
+def main():
+    rpi = Raspberry(5000,"127.0.0.2")
     re = threading.Thread(target=reading)
     ardmsg = []
     data = []
-    # ard.flush()
+    msgseq = [1,    # Xspeed
+              2,    # Rspeed
+              4,    # Zspeed
+              3,    # Yspeed
+              9]    # Turbo
     re.start()
     while True:
-    #Receive joyStick movements from pilot
+        #Receive joyStick movements from pilot
         try:
             data = rpi.receive()
         except Exception as e:
-            print ("Nothing to receive")
-        # print data
-    #Save the msg
-        if data[0] == "PILOT":
-            ardmsg.append(data[1])
-            ardmsg.append(data[2])
-            ardmsg.append(data[4])
-            ardmsg.append(data[3])
-            ardmsg.append(data[9])
-        # connected = os.system("ls /dev/ttyUSB1")
-        if connected == 0:
-            x = ard.send(ardmsg)    # Here is x, the number of characters sent.
-            # ard.s.flushOutput()     # flush output
+            print "Error receiving from PilotConsole"
+        makemessage(data,msgseq,ardmsg)
+        if ard.isOpen():
+            x = ard.putList(ardmsg)    # Here is x, the number of characters sent.
         else :
             return -1
-
-
-        ardmsg = []        
-
-
+        ardmsg = []
 
 
 def main2():
-#    print ("main2")
     rpi = Raspberry(5001,"192.168.1.6")
+    # re = threading.Thread(target=reading)
     ardmsg = []
     data = []
+    msgseq = [1,    # Xspeed
+              2,    # Rspeed
+              4,    # Zspeed
+              6,    # Arm
+              9]    # Turbo
+    # re.start()
     while True:
-    #Receive joyStick movements from pilot
+        #Receive joyStick movements from pilot
         try:
             data = rpi.receive()
         except Exception as e:
-            print ("Nothing to receive")
-    #Save the msg
-        if data[0] == "PILOT":
-            ardmsg.append(data[1])
-            ardmsg.append(data[2])
-            ardmsg.append(data[4])
-            ardmsg.append(data[6])
-            ardmsg.append(data[11])
-            ardmsg.append(data[8])
-            ardmsg.append(data[7])
-        connected = os.system("ls /dev/ttyUSB1")
-        if connected == 0:
-            x = ard.send(ardmsg)    # Here is x, the number of characters sent.
-            # ard.s.flushOutput()     # flush output
+            print "Error receiving from PilotConsole"
+        makemessage(data,msgseq,ardmsg)
+        if ard.isOpen():
+            x = ard.putList(ardmsg)    # Here is x, the number of characters sent.
         else :
             return -1
+        ardmsg = []
 
-        ardmsg = []        
- 
 if __name__ == "__main__":
+    ard = Arduino("/dev/ttyACM1")   # Must be put before while True not to open the same port twice.
+    time.sleep(2)	# This line solved a problem .. it is important.
     while True:
-        try:
-            connected = os.system("ls /dev/ttyUSB1")
-           # print connected
-            if(connected == 0):
-                ard = Arduino("/dev/ttyUSB1")
-            else:       # Must be put before while True not to open the same port twice.      
-                ard = Arduino("/dev/ttyUSB0")
-                print "Not connected on ttyUSB1"
-                # ard.s.baudrate = 112
-            global x
-            x = 0
-            time.sleep(2)   # This line solved a problem .. it is important.
-            chk = "-1"
-            if not ard.s.isOpen():
-                ard.s.open()
-            else:
-            #  chk = ard.s.write("255")
-                ard.s.write('2')
-                #print chk
-                print "Written"
-            if ard.s.inWaiting() > 0:
-                chk = ard.s.readline()
-                print "Read"
-                chk = chk.strip('\n\r')
-                rtrn = 0
-                if chk == "2":
-                    rtrn = main()
-                elif chk == "1":
-                    rtrn = main2()
-                print rtrn
-           #     if(rtrn == -1):
-            #        continue  
-
-        except:
-            print "Cannot find arduino"              
-            
+        chk = ard.initConn()
+        print "CHECK =", chk
+        rtrn = 0
+        if chk == "2":
+            rtrn = main()
+        elif chk == "1":
+            rtrn = main2()
+        if(rtrn == -1):
+            continue

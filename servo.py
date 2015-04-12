@@ -24,17 +24,17 @@ def main():
             if data[0] == '-1' and angle < 180:
 #                print "down"
                 angle += 1
-                nano.send([0,0,angle])
+                nano.putList([0,0,angle])
 #                pi.set_servo_pulsewidth(17,angle)
 #                time.sleep(0.05)
             elif data[0] == '1' and angle > 0:
 #                print "up"
                 angle -= 1
-                nano.send([0,0,angle])
+                nano.putList([0,0,angle])
 #                pi.set_servo_pulsewidth(17,angle)
 #                time.sleep(0.05)
             else:
-                nano.send([0,0,angle])
+                nano.putList([0,0,angle])
             if data[2] == '0':
                 GPIO.output(3, 0)
             else:
@@ -46,11 +46,11 @@ def main():
     except KeyboardInterrupt:
 #        pi.stop()
         GPIO.cleanup()
-        nano.closeConnection()
+        nano.close()
     except Exception as e:
 #        pi.stop()
         GPIO.cleanup()
-        nano.closeConnection()
+        nano.close()
 #        s.stop_servo(17)
         raise
     finally:

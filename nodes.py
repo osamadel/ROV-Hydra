@@ -6,27 +6,16 @@
 #                   ArduinoRight, ArduinoLeft.
 import serial
 import socket
-# import RPi.GPIO as GPIO
-import time
 
-# Super Class for all nodes in the network.
-class Workstation:
-    def __init__(self, address=""):
-        self.address = address
-
-
-# Subclass of Workstation.
-# Initiates an Arduino device.
-# Consructor receives the device name
-# setSensorNames must be set first to identify the message components.
-# read returns the message sent from Arduino
-# send sends the message to Arduino with the approperiate delimeter.
-# closeConnection closes the serial port. Must be called at the end of the main program.
+# Arduino class
+# Inherits from serial.Serial
+# Opens a serial port and handles the communication with the Arduino
+# connected to it.
 class Arduino(serial.Serial):
 
 
-    def __init__(self, address=""):
-        serial.Serial.__init__(self, port=address, baudrate=115200, writeTimeout=0.1)
+    def __init__(self, address="", rate=115200):
+        serial.Serial.__init__(self, port=address, baudrate=rate)
 
 
     def get(self):
@@ -39,11 +28,12 @@ class Arduino(serial.Serial):
     def putList(self, values):
         m = ""
         if type(values) == list:
-            if type(values[0]) == int:
+            if len(values) and type(values[0]) == int:
                 values = map(str, values)
             m = ",".join(values)
         m = "*" + m + "$"
         try:
+            # print "%s DATA TO SEND : %s" %(self.name, m)
             return self.write(m)
         except Exception as e:
             # I am not sure what the error message should be.
@@ -68,9 +58,9 @@ class Arduino(serial.Serial):
 # Used only to send data to this process(program).
 # Cannot receive from it. SEE Raspberry Class to receive data.
 # Initiates a client process to send data (as UDP packages).
-class Console(Workstation):
+class Console():
     def __init__(self, address="", port=""):
-        Workstation.__init__(self, address)  # IP address of the console.
+        self.address =  address  # IP address of the console.
         self.port = port  # Port number of the console.
 
 
@@ -93,19 +83,19 @@ class Console(Workstation):
 # Subclass of Workstation.
 # Represents the raspberry pi itself.
 # Initiates a server process used to retrieve data from multiple consoles (as UDP packages).
-class Raspberry(Workstation):
+class Raspberry(socket.socket):
     def __init__(self, port, address=socket.gethostbyname(socket.gethostname())):
-        Workstation.__init__(self, address)
+        socket.socket.__init__(self, socket.AF_INET, socket.SOCK_DGRAM)
         self.port = port
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind((address, port))
+        self.bind((address, self.port))
+        self.data = ""
 
 
     def receive(self):
-        data, clientIP = self.server.recvfrom(1024)
-        data = data.strip("/*").split(",")
-        #        print "Message received by RPi:", data
-        return data
+        self.data, clientIP = self.recvfrom(1024)
+        self.data = self.data.strip("/*").split(",")
+        # print "Message received by RPi:", self.data
+        return self.data
 
 
 # Main program for test ONLY.

@@ -1,9 +1,0 @@
-Arduino codes are put here.
-
-brushless.ino : arduino code to run brushless motor after calibration on (Neutral or stop = 1500
-                                                                          Max. Forward = 2000
-                                                                          Max. Backward = 1000)
-
-nano_code.ino : arduino nano code.
-
-serialWithoutDistortion : arduino code to receive serial message without losses in the message.

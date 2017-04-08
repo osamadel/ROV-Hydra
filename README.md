@@ -10,14 +10,14 @@ Raspberry Pi 2 Software includes:
 - servo.pu
 - start.py
 
-##main.py
+## main.py
 Python script which has receives TCP packages and send and receive serial messages without any losses.
 
-###nodes.py
+## nodes.py
 Python module that contains Arduino, Raspberry and Cosnole classes.
 
-###serialcommunication.py
+## serialcommunication.py
 Just a try to test serial communication.
 
-###workspace
+## workspace
 Contains all Arduino files.
